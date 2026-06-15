@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SymbolView } from "expo-symbols";
 import { ArrowCircleRightIcon } from "phosphor-react-native";
 import React, { useState } from "react";
-import { FlatList, Image, Platform, PlatformColor, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { FlatList, Image, Platform, PlatformColor, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 import PlanetComponent from "../components/svg/PlanetIcon";
@@ -52,7 +52,7 @@ export default function HomeScreen() {
     },
   ];
 
-  const data = [
+  const novidadesData = [
     {
       id: "1",
       nome: "Turne 1",
@@ -115,6 +115,35 @@ export default function HomeScreen() {
     }
   ];
 
+  const artistasData = [
+    {
+      id: "1",
+      nome: "Taylor Swift",
+      pfp: { uri: "https://hips.hearstapps.com/hmg-prod/images/taylor-swift-performs-onstage-during-taylor-swift-the-news-photo-1727782003.jpg?crop=0.65234xw:1xh;center,top&resize=1120:*" }
+    }, {
+      id: "2",
+      nome: "Conan Gray",
+      pfp: { uri: "https://yt3.googleusercontent.com/vmWABWRDo-CWedrSHB6pSK6Y1nu4yn7iAV-lEuqTHVXJLBMCJXzrLY3HmSEniP2IzDep_SMMYg=s900-c-k-c0x00ffffff-no-rj" }
+    }, {
+      id: "3",
+      nome: "KATSEYE",
+      pfp: { uri: "https://shop.umusic.com.au/cdn/shop/files/KATSEYE_Square_c7e0428b-02d5-42ec-ae1b-31f66159e185.jpg?v=1750292407&width=900" }
+    }, {
+      id: "4",
+      nome: "Marina Sena",
+      pfp: { uri: "https://akamai.sscdn.co/uploadfile/letras/fotos/f/3/f/e/f3fef4e3d75ded9cb10bc54b6a6f34c8.jpg" }
+    }, {
+      id: "5",
+      nome: "Beyoncé",
+      pfp: { uri: "https://static01.nyt.com/images/2022/06/17/multimedia/16beyonce1/16beyonce1-mediumSquareAt3X.jpg" }
+    }, {
+      id: "6",
+      nome: "Lady Gaga",
+      pfp: { uri: "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2021_20/1720200/lady-gaga-assault-today-sk-square-210520.jpg" }
+    }]
+
+
+
 
   type CarouselItem = {
     image: any;
@@ -123,7 +152,7 @@ export default function HomeScreen() {
   };
 
   const renderItem = ({ item }: { item: CarouselItem }) => (
-    <View style={{ flex: 1, borderRadius: 16, overflow: "hidden" }}>
+    <TouchableOpacity activeOpacity={0.5} style={{ flex: 1, borderRadius: 16, overflow: "hidden" }}>
       <Image
         source={item.image}
         style={{ width: "100%", height: "100%", borderRadius: 16 }}
@@ -150,11 +179,11 @@ export default function HomeScreen() {
           alignItems: "center",
           justifyContent: "center",
         }}>
-        <Text className=" text-white text-xs font-[Archivo_500Medium]" >
+        <Text style={{ color: "white", fontSize: 12, fontFamily: "Archivo_500Medium" }}>
           {{ 0: "L", 1: "6", 2: "10", 3: "12", 4: "14", 5: "16", 6: "18" }[item.classificacao]}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const ref = React.useRef<ICarouselInstance>(null);
@@ -168,114 +197,157 @@ export default function HomeScreen() {
 
 
   return (
-    <ScrollView>
-      <View style={styles.headerSection}>
-        <PlanetComponent />
-        <Text style={styles.archivoTitle}>Bem vindo de volta!</Text>
-      </View>
-      <View style={styles.searchSection}>
-        {Platform.OS === "ios" && isGlassEffectAPIAvailable() ? (
-          <GlassView style={styles.glassInputWrapper} glassEffectStyle="regular">
-            <SymbolView
-              style={styles.searchIcon}
-              name="magnifyingglass"
-              tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
-              fallback={<Text>🔍</Text>}
-            />
-            <TextInput
-              style={styles.glassInput}
-              placeholder="Digite algo aqui"
-              autoCorrect={false}
-              autoCapitalize="words"
-              value={inputSearch}
-              onChangeText={(text) => {
-                setInputSearch(text);
-              }}
-            />
-          </GlassView>
-        ) : (
-          <View>
-            <SymbolView
-              style={styles.searchIcon}
-              name="magnifyingglass"
-              tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
-              fallback={<Text>🔍</Text>}
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Miguel Victor"
-              placeholderTextColor="#999"
-              autoCorrect={false}
-              autoCapitalize="words"
-            />
+    <FlatList
+      data={[1]}
+      renderItem={() => null}
+      ListHeaderComponent={
+        <View style={{ paddingBottom: Spacing.four }}>
+          <View style={styles.headerSection}>
+            <PlanetComponent />
+            <Text style={styles.archivoTitle}>Bem vindo de volta!</Text>
           </View>
-        )}
-      </View>
-      <View style={styles.carrSection}>
-        <Text style={styles.archivoTitle}>Eventos recomendados</Text>
-        <View id="carousel-component">
-          <View style={{ marginLeft: -Spacing.four }}>
-            <Carousel
-              autoPlayInterval={7000}
-              autoPlay={true}
-              data={carouselContent}
-              loop={true}
-              pagingEnabled={true}
-              snapEnabled={true}
-              width={width}
-              height={258}
-              mode="parallax"
-              modeConfig={{ parallaxScrollingScale: 0.9, parallaxScrollingOffset: 50 }}
-              onProgressChange={(offsetProgress, absoluteProgress) => { progress.value = absoluteProgress; }}
-              renderItem={renderItem}
-            />
-          </View>
+          <View style={styles.searchSection}>
+            {Platform.OS === "ios" && isGlassEffectAPIAvailable() ? (
+              <GlassView style={styles.glassInputWrapper} glassEffectStyle="regular">
+                <SymbolView
+                  style={styles.searchIcon}
+                  name="magnifyingglass"
+                  tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
+                  fallback={<Text>🔍</Text>}
+                />
+                <TextInput
+                  style={styles.glassInput}
+                  placeholder="Digite algo aqui"
+                  autoCorrect={false}
+                  autoCapitalize="words"
+                  value={inputSearch}
+                  onChangeText={(text) => {
+                    setInputSearch(text);
+                  }}
+                />
+              </GlassView>
+            ) : (
+              <View>
+                <SymbolView
+                  style={styles.searchIcon}
+                  name="magnifyingglass"
+                  tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
+                  fallback={<Text>🔍</Text>}
+                />
 
-          <Pagination.Basic<{}>
-            progress={progress}
-            data={carouselContent}
-            dotStyle={{ width: 25, height: 4, backgroundColor: PlatformColor("secondaryLabel") }}
-            activeDotStyle={{ overflow: "hidden", backgroundColor: PlatformColor("label") }}
-            containerStyle={{ gap: 10, marginBottom: 10 }}
-            horizontal
-            onPress={onPressPagination}
-          />
-        </View>
-      </View>
-
-      <View style={styles.novidadesSection}>
-        <Text style={styles.archivoTitle}>Novidades</Text>
-
-        <FlatList
-          horizontal
-          data={data}
-          keyExtractor={(item) => item.id}
-          style={{ marginTop: Spacing.two, marginLeft: -Spacing.four, marginRight: -Spacing.four }}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.cardMedio} activeOpacity={0.5}>
-              <Image source={item.img} style={{ width: "100%", height: "60%", borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
-              <View style={{ padding: 10, backgroundColor: "transparent" }}>
-                <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), marginTop: Spacing.one }}>{item.nome}</Text>
-                <Text style={{ fontSize: 16, fontFamily: "Archivo_300Light", color: PlatformColor("label"), marginTop: Spacing.half }}>{item.artista}</Text>
-                <Text numberOfLines={3} ellipsizeMode="tail" style={{ fontSize: 12, fontFamily: "Archivo_300Light", lineHeight: 15, marginTop: Spacing.two, color: PlatformColor("secondaryLabel") }}>{item.descricao}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: Miguel Victor"
+                  placeholderTextColor="#999"
+                  autoCorrect={false}
+                  autoCapitalize="words"
+                />
               </View>
-            </TouchableOpacity>
-          )}
-          ListFooterComponent={() => (
-            <TouchableOpacity style={styles.cardMedio} activeOpacity={0.5}
-              onPress={() => {
-                // navegar para tela de "ver mais"
-              }}
-            >
-              <ArrowCircleRightIcon size={40} weight="light" color={PlatformColor("label")} />
-              <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
-            </TouchableOpacity>
-          )}
-        />
+            )}
+          </View>
+          <View style={styles.carrSection}>
+            <Text style={styles.archivoTitle}>Eventos recomendados</Text>
+            <View id="carousel-component">
+              <View style={{ marginLeft: -Spacing.four }}>
+                <Carousel
+                  autoPlayInterval={7000}
+                  autoPlay={true}
+                  data={carouselContent}
+                  loop={true}
+                  pagingEnabled={true}
+                  snapEnabled={true}
+                  width={width}
+                  height={258}
+                  mode="parallax"
+                  modeConfig={{ parallaxScrollingScale: 0.9, parallaxScrollingOffset: 50 }}
+                  onProgressChange={(offsetProgress, absoluteProgress) => { progress.value = absoluteProgress; }}
+                  renderItem={renderItem}
+                />
+              </View>
 
-      </View>
-    </ScrollView>
+              <Pagination.Basic<{}>
+                progress={progress}
+                data={carouselContent}
+                dotStyle={{ width: 25, height: 4, backgroundColor: PlatformColor("secondaryLabel") }}
+                activeDotStyle={{ overflow: "hidden", backgroundColor: PlatformColor("label") }}
+                containerStyle={{ gap: 10, marginBottom: 10 }}
+                horizontal
+                onPress={onPressPagination}
+              />
+            </View>
+          </View>
+
+          <View style={styles.novidadesSection}>
+            <Text style={styles.archivoTitle}>Novidades</Text>
+
+            <FlatList
+              horizontal
+              data={novidadesData}
+              showsHorizontalScrollIndicator
+              persistentScrollbar
+              contentContainerStyle={{
+                paddingBottom: 16,
+              }}
+              keyExtractor={(item) => item.id}
+              style={{ marginTop: Spacing.three, marginLeft: -Spacing.four, marginRight: -Spacing.four }}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity style={[styles.cardMedio, index === 0 && { marginLeft: Spacing.four }]} activeOpacity={0.5}>
+                  <Image source={item.img} style={{ width: "100%", height: "60%", borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
+                  <View style={{ padding: 10, backgroundColor: "transparent" }}>
+                    <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), marginTop: Spacing.one }}>{item.nome}</Text>
+                    <Text style={{ fontSize: 16, fontFamily: "Archivo_300Light", color: PlatformColor("label"), marginTop: Spacing.half }}>{item.artista}</Text>
+                    <Text numberOfLines={3} ellipsizeMode="tail" style={{ fontSize: 12, fontFamily: "Archivo_300Light", lineHeight: 15, marginTop: Spacing.two, color: PlatformColor("secondaryLabel") }}>{item.descricao}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListFooterComponent={() => (
+                <TouchableOpacity style={styles.cardMedio} activeOpacity={0.5}
+                  onPress={() => {
+                    // navegar para tela de "ver mais"
+                  }}
+                >
+                  <ArrowCircleRightIcon size={40} weight="light" color={PlatformColor("label")} />
+                  <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+
+          <View style={styles.artistasSection}>
+            <Text style={styles.archivoTitle}>Artistas</Text>
+            <FlatList
+              data={artistasData}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{
+                alignItems: "center",
+              }}
+              columnWrapperStyle={{
+                justifyContent: "center",
+              }}
+              numColumns={3}
+              renderItem={({ item }) => (
+                <TouchableOpacity activeOpacity={0.5} style={{ marginHorizontal: Spacing.two, marginTop: Spacing.three }}>
+                  <Image style={{ width: 100, height: 100, borderRadius: "100%" }} source={item.pfp} />
+                  <Text style={{ fontSize: 16, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), textAlign: "center", marginTop: Spacing.one }}> {item.nome}</Text>
+                </TouchableOpacity>
+              )}
+
+              ListFooterComponent={() => (
+                <TouchableOpacity activeOpacity={0.5} style={{ width: "100%", height: 60, backgroundColor: PlatformColor("tertiarySystemFill"), display: "flex", alignItems: 'center', marginTop: Spacing.three, flexDirection: "row", justifyContent: "center", gap: Spacing.one, borderRadius: 7 }}>
+                  <ArrowCircleRightIcon size={36} weight="light" color={PlatformColor("label")} />
+                  <Text style={{ fontSize: 18, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+
+          <View style={styles.categoriasSection}>
+            <Text style={styles.archivoTitle}>Categorias</Text>
+          </View>
+        </View>
+      }
+
+    />
   );
 }
 
@@ -322,6 +394,16 @@ const styles = StyleSheet.create({
   },
 
   novidadesSection: {
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.four,
+  },
+
+  artistasSection: {
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.three,
+  },
+
+  categoriasSection: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.four,
   },
