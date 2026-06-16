@@ -5,10 +5,11 @@ import { GlassView, isGlassEffectAPIAvailable } from "expo-glass-effect";
 import { LinearGradient } from 'expo-linear-gradient';
 import { SymbolView } from "expo-symbols";
 import { ArrowCircleRightIcon } from "phosphor-react-native";
-import React, { useState } from "react";
-import { FlatList, Image, Platform, PlatformColor, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { Animated, FlatList, Image, Platform, PlatformColor, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
+import { SafeAreaView } from "react-native-safe-area-context";
 import PlanetComponent from "../components/svg/PlanetIcon";
 
 
@@ -142,6 +143,23 @@ export default function HomeScreen() {
       pfp: { uri: "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2021_20/1720200/lady-gaga-assault-today-sk-square-210520.jpg" }
     }]
 
+  const sections = [
+    {
+      title: "Eventos recomendados",
+      type: "rec",
+      data: [1]
+    },
+    {
+      title: "Novidades",
+      type: "news",
+      data: [1]
+    },
+    {
+      title: "Artistas",
+      type: "art",
+      data: [1]
+    }
+  ];
 
 
 
@@ -195,166 +213,237 @@ export default function HomeScreen() {
     });
   };
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  //const headerHeight = scrollY.interpolate({
+  //inputRange: [0, 120],
+  //outputRange: [200, 105],
+  //extrapolate: "clamp",
+  //});
+
+  const titleOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0],
+    extrapolate: "clamp",
+  });
+
+  const searchSize = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: ['100%', '86%'],
+    extrapolate: "clamp",
+  });
+
+  const searchTranslateY = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, -65],
+    extrapolate: "clamp",
+  });
+
+  const searchTranslateX = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, 54],
+    extrapolate: "clamp",
+  });
+
+
 
   return (
-    <FlatList
-      data={[1]}
-      renderItem={() => null}
-      ListHeaderComponent={
-        <View style={{ paddingBottom: Spacing.four }}>
-          <View style={styles.headerSection}>
-            <PlanetComponent />
-            <Text style={styles.archivoTitle}>Bem vindo de volta!</Text>
-          </View>
-          <View style={styles.searchSection}>
-            {Platform.OS === "ios" && isGlassEffectAPIAvailable() ? (
-              <GlassView style={styles.glassInputWrapper} glassEffectStyle="regular">
-                <SymbolView
-                  style={styles.searchIcon}
-                  name="magnifyingglass"
-                  tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
-                  fallback={<Text>🔍</Text>}
-                />
-                <TextInput
-                  style={styles.glassInput}
-                  placeholder="Digite algo aqui"
-                  autoCorrect={false}
-                  autoCapitalize="words"
-                  value={inputSearch}
-                  onChangeText={(text) => {
-                    setInputSearch(text);
-                  }}
-                />
-              </GlassView>
-            ) : (
-              <View>
-                <SymbolView
-                  style={styles.searchIcon}
-                  name="magnifyingglass"
-                  tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
-                  fallback={<Text>🔍</Text>}
-                />
+    <View style={{ flex: 1, backgroundColor: PlatformColor("systemBackground") }}>
+      <Animated.SectionList
+        sections={sections}
+        style={{ paddingTop: 185 }}
+        keyExtractor={(item, index) => String(index)}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        renderItem={({ item, section }) => {
+          if (section.type === "rec") {
+            return <View style={styles.carrSection}>
+              <Text style={styles.archivoTitle}>{section.title}</Text>
+              <View id="carousel-component">
+                <View style={{ marginLeft: -Spacing.four }}>
+                  <Carousel
+                    autoPlayInterval={7000}
+                    autoPlay={true}
+                    data={carouselContent}
+                    loop={true}
+                    pagingEnabled={true}
+                    snapEnabled={true}
+                    width={width}
+                    height={258}
+                    mode="parallax"
+                    modeConfig={{ parallaxScrollingScale: 0.9, parallaxScrollingOffset: 50 }}
+                    onProgressChange={(offsetProgress, absoluteProgress) => { progress.value = absoluteProgress; }}
+                    renderItem={renderItem}
+                  />
+                </View>
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ex: Miguel Victor"
-                  placeholderTextColor="#999"
-                  autoCorrect={false}
-                  autoCapitalize="words"
-                />
-              </View>
-            )}
-          </View>
-          <View style={styles.carrSection}>
-            <Text style={styles.archivoTitle}>Eventos recomendados</Text>
-            <View id="carousel-component">
-              <View style={{ marginLeft: -Spacing.four }}>
-                <Carousel
-                  autoPlayInterval={7000}
-                  autoPlay={true}
+                <Pagination.Basic<{}>
+                  progress={progress}
                   data={carouselContent}
-                  loop={true}
-                  pagingEnabled={true}
-                  snapEnabled={true}
-                  width={width}
-                  height={258}
-                  mode="parallax"
-                  modeConfig={{ parallaxScrollingScale: 0.9, parallaxScrollingOffset: 50 }}
-                  onProgressChange={(offsetProgress, absoluteProgress) => { progress.value = absoluteProgress; }}
-                  renderItem={renderItem}
+                  dotStyle={{ width: 25, height: 4, backgroundColor: PlatformColor("secondaryLabel") }}
+                  activeDotStyle={{ overflow: "hidden", backgroundColor: PlatformColor("label") }}
+                  containerStyle={{ gap: 10, marginBottom: 10 }}
+                  horizontal
+                  onPress={onPressPagination}
                 />
               </View>
+            </View>
+          }
 
-              <Pagination.Basic<{}>
-                progress={progress}
-                data={carouselContent}
-                dotStyle={{ width: 25, height: 4, backgroundColor: PlatformColor("secondaryLabel") }}
-                activeDotStyle={{ overflow: "hidden", backgroundColor: PlatformColor("label") }}
-                containerStyle={{ gap: 10, marginBottom: 10 }}
+          if (section.type === "news") {
+            return <View style={styles.novidadesSection}>
+              <Text style={styles.archivoTitle}>{section.title}</Text>
+              <FlatList
                 horizontal
-                onPress={onPressPagination}
+                data={novidadesData}
+                showsHorizontalScrollIndicator
+                persistentScrollbar
+                contentContainerStyle={{
+                  paddingBottom: 16,
+                }}
+                keyExtractor={(item) => item.id}
+                style={{ marginTop: Spacing.three, marginLeft: -Spacing.four, marginRight: -Spacing.four }}
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity style={[styles.cardMedio, index === 0 && { marginLeft: Spacing.four }]} activeOpacity={0.5}>
+                    <Image source={item.img} style={{ width: "100%", height: "60%", borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
+                    <View style={{ padding: 10, backgroundColor: "transparent" }}>
+                      <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), marginTop: Spacing.one }}>{item.nome}</Text>
+                      <Text style={{ fontSize: 16, fontFamily: "Archivo_300Light", color: PlatformColor("label"), marginTop: Spacing.half }}>{item.artista}</Text>
+                      <Text numberOfLines={3} ellipsizeMode="tail" style={{ fontSize: 12, fontFamily: "Archivo_300Light", lineHeight: 15, marginTop: Spacing.two, color: PlatformColor("secondaryLabel") }}>{item.descricao}</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+                ListFooterComponent={() => (
+                  <TouchableOpacity style={styles.cardMedio} activeOpacity={0.5}
+                    onPress={() => {
+                      // navegar para tela de "ver mais"
+                    }}
+                  >
+                    <ArrowCircleRightIcon size={40} weight="light" color={PlatformColor("label")} />
+                    <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
+                  </TouchableOpacity>
+                )}
               />
             </View>
-          </View>
+          }
 
-          <View style={styles.novidadesSection}>
-            <Text style={styles.archivoTitle}>Novidades</Text>
+          if (section.type === "art") {
+            return <View style={styles.artistasSection}>
+              <Text style={styles.archivoTitle}>{section.title}</Text>
+              <FlatList
+                data={artistasData}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{
+                  alignItems: "center",
+                }}
+                columnWrapperStyle={{
+                  justifyContent: "center",
+                }}
+                numColumns={3}
+                renderItem={({ item }) => (
+                  <TouchableOpacity activeOpacity={0.5} style={{ marginHorizontal: Spacing.two, marginTop: Spacing.three }}>
+                    <Image style={{ width: 100, height: 100, borderRadius: "100%" }} source={item.pfp} />
+                    <Text style={{ fontSize: 16, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), textAlign: "center", marginTop: Spacing.one }}> {item.nome}</Text>
+                  </TouchableOpacity>
+                )}
 
-            <FlatList
-              horizontal
-              data={novidadesData}
-              showsHorizontalScrollIndicator
-              persistentScrollbar
-              contentContainerStyle={{
-                paddingBottom: 16,
-              }}
-              keyExtractor={(item) => item.id}
-              style={{ marginTop: Spacing.three, marginLeft: -Spacing.four, marginRight: -Spacing.four }}
-              renderItem={({ item, index }) => (
-                <TouchableOpacity style={[styles.cardMedio, index === 0 && { marginLeft: Spacing.four }]} activeOpacity={0.5}>
-                  <Image source={item.img} style={{ width: "100%", height: "60%", borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
-                  <View style={{ padding: 10, backgroundColor: "transparent" }}>
-                    <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), marginTop: Spacing.one }}>{item.nome}</Text>
-                    <Text style={{ fontSize: 16, fontFamily: "Archivo_300Light", color: PlatformColor("label"), marginTop: Spacing.half }}>{item.artista}</Text>
-                    <Text numberOfLines={3} ellipsizeMode="tail" style={{ fontSize: 12, fontFamily: "Archivo_300Light", lineHeight: 15, marginTop: Spacing.two, color: PlatformColor("secondaryLabel") }}>{item.descricao}</Text>
-                  </View>
-                </TouchableOpacity>
+                ListFooterComponent={() => (
+                  <TouchableOpacity activeOpacity={0.5} style={{ width: "100%", height: 60, backgroundColor: PlatformColor("tertiarySystemFill"), display: "flex", alignItems: 'center', marginTop: Spacing.three, flexDirection: "row", justifyContent: "center", gap: Spacing.one, borderRadius: 7 }}>
+                    <ArrowCircleRightIcon size={36} weight="light" color={PlatformColor("label")} />
+                    <Text style={{ fontSize: 18, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          }
+
+          //<View style={styles.categoriasSection}>
+          //<Text style={styles.archivoTitle}>Categorias</Text>
+          //</View>
+
+          return null
+
+        }}
+      />
+
+
+
+      <Animated.View style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 200,
+        zIndex: 10,
+        overflow: "hidden"
+      }}>
+
+        <LinearGradient
+          colors={['#1a0d23', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+
+        <SafeAreaView style={styles.headerSection}>
+          <Animated.View style={{}}>
+            <View style={styles.welcomeSection}>
+              <PlanetComponent />
+              <Animated.Text style={[styles.archivoTitle, { opacity: titleOpacity }]}>Bem vindo de volta!</Animated.Text>
+            </View>
+            <Animated.View style={[styles.searchSection, { width: searchSize, transform: [{ translateY: searchTranslateY }, { translateX: searchTranslateX }] }]}>
+              {Platform.OS === "ios" && isGlassEffectAPIAvailable() ? (
+                <GlassView style={styles.glassInputWrapper} glassEffectStyle="regular">
+                  <SymbolView
+                    style={styles.searchIcon}
+                    name="magnifyingglass"
+                    tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
+                    fallback={<Text>🔍</Text>}
+                  />
+                  <TextInput
+                    style={styles.glassInput}
+                    placeholder="Digite algo aqui"
+                    autoCorrect={false}
+                    autoCapitalize="words"
+                    value={inputSearch}
+                    onChangeText={(text) => {
+                      setInputSearch(text);
+                    }}
+                  />
+                </GlassView>
+              ) : (
+                <View>
+                  <SymbolView
+                    style={styles.searchIcon}
+                    name="magnifyingglass"
+                    tintColor={inputSearch ? "#8e8e9300" : "#8e8e93"}
+                    fallback={<Text>🔍</Text>}
+                  />
+
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ex: Miguel Victor"
+                    placeholderTextColor="#999"
+                    autoCorrect={false}
+                    autoCapitalize="words"
+                  />
+                </View>
               )}
-              ListFooterComponent={() => (
-                <TouchableOpacity style={styles.cardMedio} activeOpacity={0.5}
-                  onPress={() => {
-                    // navegar para tela de "ver mais"
-                  }}
-                >
-                  <ArrowCircleRightIcon size={40} weight="light" color={PlatformColor("label")} />
-                  <Text style={{ fontSize: 20, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
+            </Animated.View>
+          </Animated.View>
+        </SafeAreaView>
+      </Animated.View >
 
-          <View style={styles.artistasSection}>
-            <Text style={styles.archivoTitle}>Artistas</Text>
-            <FlatList
-              data={artistasData}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{
-                alignItems: "center",
-              }}
-              columnWrapperStyle={{
-                justifyContent: "center",
-              }}
-              numColumns={3}
-              renderItem={({ item }) => (
-                <TouchableOpacity activeOpacity={0.5} style={{ marginHorizontal: Spacing.two, marginTop: Spacing.three }}>
-                  <Image style={{ width: 100, height: 100, borderRadius: "100%" }} source={item.pfp} />
-                  <Text style={{ fontSize: 16, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), textAlign: "center", marginTop: Spacing.one }}> {item.nome}</Text>
-                </TouchableOpacity>
-              )}
 
-              ListFooterComponent={() => (
-                <TouchableOpacity activeOpacity={0.5} style={{ width: "100%", height: 60, backgroundColor: PlatformColor("tertiarySystemFill"), display: "flex", alignItems: 'center', marginTop: Spacing.three, flexDirection: "row", justifyContent: "center", gap: Spacing.one, borderRadius: 7 }}>
-                  <ArrowCircleRightIcon size={36} weight="light" color={PlatformColor("label")} />
-                  <Text style={{ fontSize: 18, fontFamily: "Archivo_400Regular", color: PlatformColor("label") }}>Ver mais</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
 
-          <View style={styles.categoriasSection}>
-            <Text style={styles.archivoTitle}>Categorias</Text>
-          </View>
-        </View>
-      }
-
-    />
+    </View >
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
 
   container: {
     flex: 1,
@@ -362,20 +451,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 
-  headerSection: {
+  welcomeSection: {
     alignItems: "center",
     justifyContent: "flex-start",
-    flex: 1,
     paddingHorizontal: Spacing.four,
     gap: Spacing.two,
-    paddingTop: Spacing.four,
+    paddingTop: Spacing.two,
     flexDirection: "row",
+  },
+
+  headerSection: {
+    paddingTop: Spacing.two,
   },
 
   archivoTitle: {
     fontSize: 22,
     fontFamily: "Archivo_500Medium",
-    color: PlatformColor("label")
+    color: PlatformColor("label"),
   },
 
   archivoRegular: {
@@ -390,22 +482,23 @@ const styles = StyleSheet.create({
 
   carrSection: {
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.four,
+    paddingTop: Spacing.three,
   },
 
   novidadesSection: {
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.four,
+    paddingTop: Spacing.three,
   },
 
   artistasSection: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
+    paddingBottom: 100,
   },
 
   categoriasSection: {
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.four,
+    paddingTop: Spacing.three,
   },
 
   cardMedio: {
@@ -449,7 +542,7 @@ const styles = StyleSheet.create({
 
   searchSection: {
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
+    marginTop: Spacing.three,
   },
 
   searchIcon: {
