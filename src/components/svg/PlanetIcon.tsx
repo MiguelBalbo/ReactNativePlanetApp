@@ -1,12 +1,12 @@
 import * as React from "react";
 import Svg, {
-    ClipPath,
-    Defs,
-    G,
-    LinearGradient,
-    Path,
-    Stop,
-    SvgProps,
+  ClipPath,
+  Defs,
+  G,
+  LinearGradient,
+  Path,
+  Stop,
+  SvgProps,
 } from "react-native-svg";
 const PlanetComponent = (props: SvgProps) => (
   <Svg width={47} height={47} fill="none" {...props}>

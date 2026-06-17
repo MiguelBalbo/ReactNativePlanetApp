@@ -158,8 +158,44 @@ export default function HomeScreen() {
       title: "Artistas",
       type: "art",
       data: [1]
+    },
+    {
+      title: "Categorias",
+      type: "cat",
+      data: [1]
     }
   ];
+
+  const categoriasData = [
+    {
+      id: "1",
+      title: "Pop",
+      iconIos: "opticaldisc",
+      iconAnd: "",
+      color: "#de6a8f"
+    },
+    {
+      id: "2",
+      title: "Rock",
+      iconIos: "guitars",
+      iconAnd: "",
+      color: "#485155"
+    },
+    {
+      id: "3",
+      title: "Rap",
+      iconIos: "hifispeaker",
+      iconAnd: "",
+      color: "#184b82"
+    },
+    {
+      id: "4",
+      title: "MPB",
+      iconIos: "microphone",
+      iconAnd: "",
+      color: "#a2ae38"
+    }
+  ]
 
 
 
@@ -360,6 +396,29 @@ export default function HomeScreen() {
             </View>
           }
 
+          if (section.type === "cat") {
+            return <View style={styles.categoriasSection}>
+              <Text style={styles.archivoTitle}>{section.title}</Text>
+              <FlatList
+                data={categoriasData}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity activeOpacity={0.5} style={{ width: "100%", height: 60, backgroundColor: PlatformColor("tertiarySystemFill"), display: "flex", alignItems: 'center', marginTop: Spacing.three, flexDirection: "row", gap: Spacing.one, borderRadius: 7 }}>
+                    <View style={{ width: 60, height: 60, backgroundColor: item.color, borderTopLeftRadius: 7, borderBottomLeftRadius: 7, alignItems: 'center', justifyContent: "center" }}>
+                      <SymbolView
+                        style={{ width: 30, height: 30 }}
+                        name={Platform.OS === "ios" ? item.iconIos : item.iconAnd}
+                        tintColor={PlatformColor("label")}
+                      />
+                    </View>
+                    <Text style={{ fontSize: 18, fontFamily: "Archivo_400Regular", color: PlatformColor("label"), marginHorizontal: "auto" }}>{item.title}</Text>
+                  </TouchableOpacity>
+                )}
+
+              />
+            </View>
+          }
+
           //<View style={styles.categoriasSection}>
           //<Text style={styles.archivoTitle}>Categorias</Text>
           //</View>
@@ -493,12 +552,12 @@ const styles = StyleSheet.create({
   artistasSection: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
-    paddingBottom: 100,
   },
 
   categoriasSection: {
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
+    paddingTop: Spacing.four,
+    paddingBottom: 100
   },
 
   cardMedio: {
